@@ -91,7 +91,7 @@ static void build_gui()
 	GtkWidget *vbox, *hbox;
 
 	msg_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_default_size(GTK_WINDOW(msg_win), 400, 200);
+	gtk_window_set_default_size(GTK_WINDOW(msg_win), 600, 400);
 	gtk_container_set_border_width(GTK_CONTAINER(msg_win), 0);
 	gtk_window_set_keep_above(GTK_WINDOW(msg_win), TRUE);
 	if (gtk_widget_is_composited(msg_win)) {
@@ -118,7 +118,7 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	reqtk_uri_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(reqtk_uri_entry), TRUE);
-	gtk_entry_set_width_chars(GTK_ENTRY(reqtk_uri_entry), 40);
+	gtk_entry_set_width_chars(GTK_ENTRY(reqtk_uri_entry), 80);
 	gtk_entry_set_text(GTK_ENTRY(reqtk_uri_entry),
 			"http://term.ie/oauth/example/request_token.php");
 	gtk_box_pack_start(GTK_BOX(hbox), reqtk_uri_entry, FALSE, FALSE, 0);
@@ -133,7 +133,7 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	acctk_uri_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(acctk_uri_entry), TRUE);
-	gtk_entry_set_width_chars(GTK_ENTRY(acctk_uri_entry), 40);
+	gtk_entry_set_width_chars(GTK_ENTRY(acctk_uri_entry), 80);
 	gtk_entry_set_text(GTK_ENTRY(acctk_uri_entry),
 			"http://term.ie/oauth/example/access_token.php");
 	gtk_box_pack_start(GTK_BOX(hbox), acctk_uri_entry, FALSE, FALSE, 0);
@@ -148,7 +148,7 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	api_call_uri_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(api_call_uri_entry), TRUE);
-	gtk_entry_set_width_chars(GTK_ENTRY(api_call_uri_entry), 40);
+	gtk_entry_set_width_chars(GTK_ENTRY(api_call_uri_entry), 80);
 	gtk_entry_set_text(GTK_ENTRY(api_call_uri_entry),
 		"http://term.ie/oauth/example/echo_api.php?method=foo%20bar&bar=baz");
 	gtk_box_pack_start(GTK_BOX(hbox), api_call_uri_entry, FALSE, FALSE, 0);
@@ -163,7 +163,7 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	ckey_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(ckey_entry), TRUE);
-	gtk_entry_set_width_chars(GTK_ENTRY(ckey_entry), 40);
+	gtk_entry_set_width_chars(GTK_ENTRY(ckey_entry), 80);
 	gtk_entry_set_text(GTK_ENTRY(ckey_entry), "key");
 	gtk_box_pack_start(GTK_BOX(hbox), ckey_entry, FALSE, FALSE, 0);
 
@@ -177,7 +177,7 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	csecret_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(csecret_entry), TRUE);
-	gtk_entry_set_width_chars(GTK_ENTRY(csecret_entry), 40);
+	gtk_entry_set_width_chars(GTK_ENTRY(csecret_entry), 80);
 	gtk_entry_set_text(GTK_ENTRY(csecret_entry), "secret");
 	gtk_box_pack_start(GTK_BOX(hbox), csecret_entry, FALSE, FALSE, 0);
 
@@ -202,7 +202,7 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	token_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(token_entry), FALSE);
-	gtk_entry_set_width_chars(GTK_ENTRY(token_entry), 40);
+	gtk_entry_set_width_chars(GTK_ENTRY(token_entry), 80);
 	gtk_box_pack_start(GTK_BOX(hbox), token_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
@@ -215,7 +215,7 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	token_secret_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(token_secret_entry), FALSE);
-	gtk_entry_set_width_chars(GTK_ENTRY(token_secret_entry), 40);
+	gtk_entry_set_width_chars(GTK_ENTRY(token_secret_entry), 80);
 	gtk_box_pack_start(GTK_BOX(hbox), token_secret_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
@@ -228,7 +228,7 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	access_token_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(access_token_entry), FALSE);
-	gtk_entry_set_width_chars(GTK_ENTRY(access_token_entry), 40);
+	gtk_entry_set_width_chars(GTK_ENTRY(access_token_entry), 80);
 	gtk_box_pack_start(GTK_BOX(hbox), access_token_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
@@ -241,7 +241,7 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	access_token_secret_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(access_token_secret_entry), FALSE);
-	gtk_entry_set_width_chars(GTK_ENTRY(access_token_secret_entry), 40);
+	gtk_entry_set_width_chars(GTK_ENTRY(access_token_secret_entry), 80);
 	gtk_box_pack_start(GTK_BOX(hbox), access_token_secret_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
@@ -254,7 +254,7 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	result_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(result_entry), FALSE);
-	gtk_entry_set_width_chars(GTK_ENTRY(result_entry), 40);
+	gtk_entry_set_width_chars(GTK_ENTRY(result_entry), 80);
 	gtk_box_pack_start(GTK_BOX(hbox), result_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
