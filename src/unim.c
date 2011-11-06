@@ -6,6 +6,8 @@
 
 static GtkWidget *reqtk_uri_entry, *ckey_entry, *csecret_entry;
 static GtkWidget *token_entry, *token_secret_entry;
+static GtkWidget *acctk_uri_entry;
+static GtkWidget *access_token_entry, *access_token_secret_entry;
 
 static void build_gui();
 
@@ -37,6 +39,7 @@ static void login_button_press(GtkWidget *widget,
 	int rc;
 
 	login_info.request_token_uri = gtk_entry_get_text(GTK_ENTRY(reqtk_uri_entry));
+	login_info.access_token_uri = gtk_entry_get_text(GTK_ENTRY(acctk_uri_entry));
 	login_info.consumer_key = gtk_entry_get_text(GTK_ENTRY(ckey_entry));
 	login_info.consumer_secret = gtk_entry_get_text(GTK_ENTRY(csecret_entry));
 	rc = unim_oauth_request(&login_info);
@@ -44,13 +47,28 @@ static void login_button_press(GtkWidget *widget,
 		g_print("reqeust token failed!\n");
 		gtk_entry_set_text(GTK_ENTRY(token_entry), "");
 		gtk_entry_set_text(GTK_ENTRY(token_secret_entry), "");
-		return;
+		goto error_out;
 	}
 
 	gtk_entry_set_text(GTK_ENTRY(token_entry), login_info.res_token_key);
 	gtk_entry_set_text(GTK_ENTRY(token_secret_entry), login_info.res_token_secret);
+
+	rc = unim_oauth_access(&login_info);
+	if (rc) {
+		g_print("access token failed!\n");
+		gtk_entry_set_text(GTK_ENTRY(access_token_entry), "");
+		gtk_entry_set_text(GTK_ENTRY(access_token_secret_entry), "");
+		goto error_out;
+	}
+
+	gtk_entry_set_text(GTK_ENTRY(access_token_entry), login_info.access_token_key);
+	gtk_entry_set_text(GTK_ENTRY(access_token_secret_entry), login_info.access_token_secret);
+
+error_out:
 	free(login_info.res_token_key);
 	free(login_info.res_token_secret);
+	free(login_info.access_token_key);
+	free(login_info.access_token_secret);
 }
 
 static void build_gui()
@@ -90,6 +108,21 @@ static void build_gui()
 	gtk_entry_set_text(GTK_ENTRY(reqtk_uri_entry),
 			"http://term.ie/oauth/example/request_token.php");
 	gtk_box_pack_start(GTK_BOX(hbox), reqtk_uri_entry, FALSE, FALSE, 0);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+	/*
+	 * access token uri
+	 */
+	hbox = gtk_hbox_new(FALSE, 1);
+	label = gtk_label_new("Access Token URI");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	acctk_uri_entry = gtk_entry_new();
+	gtk_editable_set_editable(GTK_EDITABLE(acctk_uri_entry), TRUE);
+	gtk_entry_set_width_chars(GTK_ENTRY(acctk_uri_entry), 40);
+	gtk_entry_set_text(GTK_ENTRY(acctk_uri_entry),
+			"http://term.ie/oauth/example/access_token.php");
+	gtk_box_pack_start(GTK_BOX(hbox), acctk_uri_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
@@ -157,6 +190,33 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), token_secret_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+	/*
+	 * Reply oauth Access Token
+	 */
+	hbox = gtk_hbox_new(FALSE, 1);
+	label = gtk_label_new("Access Token");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	access_token_entry = gtk_entry_new();
+	gtk_editable_set_editable(GTK_EDITABLE(access_token_entry), FALSE);
+	gtk_entry_set_width_chars(GTK_ENTRY(access_token_entry), 40);
+	gtk_box_pack_start(GTK_BOX(hbox), access_token_entry, FALSE, FALSE, 0);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+	/*
+	 * Reply oauth Access Token Secret
+	 */
+	hbox = gtk_hbox_new(FALSE, 1);
+	label = gtk_label_new("Access Token Secret");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	access_token_secret_entry = gtk_entry_new();
+	gtk_editable_set_editable(GTK_EDITABLE(access_token_secret_entry), FALSE);
+	gtk_entry_set_width_chars(GTK_ENTRY(access_token_secret_entry), 40);
+	gtk_box_pack_start(GTK_BOX(hbox), access_token_secret_entry, FALSE, FALSE, 0);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
 
 	/*
 	 * show gui
