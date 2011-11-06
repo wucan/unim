@@ -1,0 +1,19 @@
+bin_PROGRAMS = unim
+
+AM_CFLAGS = $(CFLAGS) \
+	-I $(top_srcdir)/include \
+	-I $(srcdir)/include \
+	$(gtk_CFLAGS)
+
+unim_LDADD = \
+	-lm -lpthread \
+	$(gtk_LIBS)
+
+NULL_FILE =
+
+unim_SOURCES = \
+	main.c \
+	$(NULL_FILE)
+
+SUBDIRS =
+
