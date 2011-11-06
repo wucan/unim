@@ -48,10 +48,10 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 =
-am_unim_OBJECTS = main.$(OBJEXT) $(am__objects_1)
+am_unim_OBJECTS = main.$(OBJEXT) oauth_test.$(OBJEXT) $(am__objects_1)
 unim_OBJECTS = $(am_unim_OBJECTS)
 am__DEPENDENCIES_1 =
-unim_DEPENDENCIES = $(am__DEPENDENCIES_1)
+unim_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -214,6 +214,8 @@ localedir = @localedir@
 localstatedir = @localstatedir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
+oauth_CFLAGS = @oauth_CFLAGS@
+oauth_LIBS = @oauth_LIBS@
 oldincludedir = @oldincludedir@
 pdfdir = @pdfdir@
 prefix = @prefix@
@@ -230,15 +232,16 @@ top_srcdir = @top_srcdir@
 AM_CFLAGS = $(CFLAGS) \
 	-I $(top_srcdir)/include \
 	-I $(srcdir)/include \
-	$(gtk_CFLAGS)
+	$(gtk_CFLAGS) $(oauth_CFLAGS)
 
 unim_LDADD = \
 	-lm -lpthread \
-	$(gtk_LIBS)
+	$(gtk_LIBS) $(oauth_LIBS)
 
 NULL_FILE = 
 unim_SOURCES = \
 	main.c \
+	oauth_test.c \
 	$(NULL_FILE)
 
 SUBDIRS = 
@@ -330,6 +333,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/oauth_test.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

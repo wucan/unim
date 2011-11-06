@@ -16,6 +16,8 @@ AC_PROG_LIBTOOL
 PKG_CHECK_MODULES(gtk, "gtk+-2.0", have_gtk=yes, have_gtk=no)
 AM_CONDITIONAL(HAVE_GTK, test "x$have_gtk" = "yes")
 
+PKG_CHECK_MODULES(oauth, "oauth", have_oauth=yes, have_oauth=no)
+
 AC_SUBST(VERSION)
 
 AC_OUTPUT([Makefile
