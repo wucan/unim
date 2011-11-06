@@ -8,6 +8,7 @@ static GtkWidget *reqtk_uri_entry, *ckey_entry, *csecret_entry;
 static GtkWidget *token_entry, *token_secret_entry;
 static GtkWidget *acctk_uri_entry;
 static GtkWidget *access_token_entry, *access_token_secret_entry;
+static GtkWidget *api_call_uri_entry, *result_entry;
 
 static void build_gui();
 
@@ -63,6 +64,19 @@ static void login_button_press(GtkWidget *widget,
 
 	gtk_entry_set_text(GTK_ENTRY(access_token_entry), login_info.access_token_key);
 	gtk_entry_set_text(GTK_ENTRY(access_token_secret_entry), login_info.access_token_secret);
+
+	/*
+	 * test api call
+	 */
+	struct unim_api_call_info api_call_info = {0};
+	api_call_info.uri = gtk_entry_get_text(GTK_ENTRY(api_call_uri_entry));
+	rc = unim_oauth_api_call(&login_info, &api_call_info);
+	if (rc) {
+		gtk_entry_set_text(GTK_ENTRY(result_entry), "Failed!");
+		goto error_out;
+	}
+	gtk_entry_set_text(GTK_ENTRY(result_entry), api_call_info.result);
+	free(api_call_info.result);
 
 error_out:
 	free(login_info.res_token_key);
@@ -123,6 +137,21 @@ static void build_gui()
 	gtk_entry_set_text(GTK_ENTRY(acctk_uri_entry),
 			"http://term.ie/oauth/example/access_token.php");
 	gtk_box_pack_start(GTK_BOX(hbox), acctk_uri_entry, FALSE, FALSE, 0);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+	/*
+	 * api call uri
+	 */
+	hbox = gtk_hbox_new(FALSE, 1);
+	label = gtk_label_new("API Call URI");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	api_call_uri_entry = gtk_entry_new();
+	gtk_editable_set_editable(GTK_EDITABLE(api_call_uri_entry), TRUE);
+	gtk_entry_set_width_chars(GTK_ENTRY(api_call_uri_entry), 40);
+	gtk_entry_set_text(GTK_ENTRY(api_call_uri_entry),
+		"http://term.ie/oauth/example/echo_api.php?method=foo%20bar&bar=baz");
+	gtk_box_pack_start(GTK_BOX(hbox), api_call_uri_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
@@ -217,6 +246,18 @@ static void build_gui()
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
+	/*
+	 * API Call Result
+	 */
+	hbox = gtk_hbox_new(FALSE, 1);
+	label = gtk_label_new("Result");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	result_entry = gtk_entry_new();
+	gtk_editable_set_editable(GTK_EDITABLE(result_entry), FALSE);
+	gtk_entry_set_width_chars(GTK_ENTRY(result_entry), 40);
+	gtk_box_pack_start(GTK_BOX(hbox), result_entry, FALSE, FALSE, 0);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 	/*
 	 * show gui

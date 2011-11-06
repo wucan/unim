@@ -76,3 +76,26 @@ int unim_oauth_access(struct unim_login_info *login_info)
 	return rc;
 }
 
+int unim_oauth_api_call(struct unim_login_info *login_info,
+				struct unim_api_call_info *api_call_info)
+{
+	char *req_url, *reply;
+	int rc = -1;
+
+	req_url = oauth_sign_url2(api_call_info->uri,
+				NULL, OA_HMAC, NULL,
+				login_info->consumer_key, login_info->consumer_secret,
+				login_info->access_token_key, login_info->access_token_secret);
+	reply = oauth_http_get(req_url, NULL);
+	if (reply) {
+		printf("HTTP-reply:\n\t%s\n", reply);
+		api_call_info->result = reply;
+		rc = 0;
+	}
+
+	if (req_url)
+		free(req_url);
+
+	return rc;
+}
+
