@@ -15,6 +15,7 @@ NULL_FILE =
 unim_SOURCES = \
 	main.c \
 	oauth_test.c \
+	unim.c unim_oauth.c \
 	$(NULL_FILE)
 
 SUBDIRS =

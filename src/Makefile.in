@@ -48,7 +48,8 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 =
-am_unim_OBJECTS = main.$(OBJEXT) oauth_test.$(OBJEXT) $(am__objects_1)
+am_unim_OBJECTS = main.$(OBJEXT) oauth_test.$(OBJEXT) unim.$(OBJEXT) \
+	unim_oauth.$(OBJEXT) $(am__objects_1)
 unim_OBJECTS = $(am_unim_OBJECTS)
 am__DEPENDENCIES_1 =
 unim_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
@@ -242,6 +243,7 @@ NULL_FILE =
 unim_SOURCES = \
 	main.c \
 	oauth_test.c \
+	unim.c unim_oauth.c \
 	$(NULL_FILE)
 
 SUBDIRS = 
@@ -334,6 +336,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/oauth_test.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unim.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unim_oauth.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
