@@ -12,6 +12,9 @@ struct unim_login_info {
 	char *res_token_secret;
 	char *access_token_key;
 	char *access_token_secret;
+
+	int request_added_argc;
+	char *request_added_argv[10];
 };
 
 struct unim_api_call_info {

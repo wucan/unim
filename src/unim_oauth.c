@@ -10,8 +10,18 @@ int unim_oauth_request(struct unim_login_info *login_info)
 {
 	char *req_url, *reply;
 	int rc = -1;
+	int argc = 0;
+	char **argv = NULL;
+	int i;
 
-	req_url = oauth_sign_url2(login_info->request_token_uri,
+	argc = oauth_split_url_parameters(login_info->request_token_uri, &argv);
+	if (login_info->request_added_argc) {
+		for (i = 0; i < login_info->request_added_argc; i++) {
+			oauth_add_param_to_array(&argc, &argv,
+					login_info->request_added_argv[i]);
+		}
+	}
+	req_url = oauth_sign_array2(&argc, &argv,
 				NULL, OA_HMAC, NULL,
 				login_info->consumer_key, login_info->consumer_secret,
 				NULL, NULL);
@@ -22,11 +32,14 @@ int unim_oauth_request(struct unim_login_info *login_info)
 		printf("HTTP-reply:\n\t%s\n", reply);
 		rc = oauth_split_url_parameters(reply, &rv);
 		qsort(rv, rc, sizeof(char *), oauth_cmpstringp);
-		if (rc == 2 &&
-			!strncmp(rv[0], "oauth_token=", 11) &&
-			!strncmp(rv[1], "oauth_token_secret=", 18)) {
-			login_info->res_token_key = strdup(&(rv[0][12]));
-			login_info->res_token_secret = strdup(&(rv[1][19]));
+		if (rc >= 2) {
+			for (i = 0; i < rc; i++) {
+				if (!strncmp(rv[i], "oauth_token=", 11)) {
+					login_info->res_token_key = strdup(&(rv[0][12]));
+				} else if (!strncmp(rv[1], "oauth_token_secret=", 18)) {
+					login_info->res_token_secret = strdup(&(rv[1][19]));
+				}
+			}
 			rc = 0;
 		}
 		if (rv)
@@ -37,6 +50,8 @@ int unim_oauth_request(struct unim_login_info *login_info)
 		free(req_url);
 	if (reply)
 		free(reply);
+	if (argc)
+		oauth_free_array(&argc, &argv);
 
 	return rc;
 }
