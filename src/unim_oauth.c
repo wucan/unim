@@ -34,10 +34,10 @@ int unim_oauth_request(struct unim_login_info *login_info)
 		qsort(rv, rc, sizeof(char *), oauth_cmpstringp);
 		if (rc >= 2) {
 			for (i = 0; i < rc; i++) {
-				if (!strncmp(rv[i], "oauth_token=", 11)) {
-					login_info->res_token_key = strdup(&(rv[0][12]));
-				} else if (!strncmp(rv[1], "oauth_token_secret=", 18)) {
-					login_info->res_token_secret = strdup(&(rv[1][19]));
+				if (!strncmp(rv[i], "oauth_token=", 12)) {
+					login_info->res_token_key = strdup(&(rv[i][12]));
+				} else if (!strncmp(rv[i], "oauth_token_secret=", 19)) {
+					login_info->res_token_secret = strdup(&(rv[i][19]));
 				}
 			}
 			rc = 0;
