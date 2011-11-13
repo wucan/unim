@@ -36,10 +36,10 @@ static const char *term_url[URL_NUM] = {
 };
 
 static const char *opent_url[URL_NUM] = {
-	"https://open.t.qq.com/cgi-bin/request_token",
-	"https://open.t.qq.com/cgi-bin/authorize",
-	"https://open.t.qq.com/cgi-bin/access_token",
-	"https://open.t.qq.com/api/statuses/home_timeline",
+	"http://open.t.qq.com/cgi-bin/request_token",
+	"http://open.t.qq.com/cgi-bin/authorize",
+	"http://open.t.qq.com/cgi-bin/access_token",
+	"http://open.t.qq.com/api/statuses/home_timeline",
 };
 
 static struct consumer_info term_consumer = {"key", "secret"};
