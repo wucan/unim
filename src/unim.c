@@ -5,9 +5,7 @@
 
 
 static GtkWidget *btn, *api_call_btn;
-static GtkWidget *reqtk_uri_entry, *ckey_entry, *csecret_entry;
 static GtkWidget *token_entry, *token_secret_entry;
-static GtkWidget *acctk_uri_entry;
 static GtkWidget *access_token_entry, *access_token_secret_entry;
 static GtkWidget *api_call_uri_entry, *result_entry;
 static GtkWidget *verifier_entry;
@@ -28,25 +26,56 @@ enum {
 	URL_NUM
 };
 
-static const char *term_url[URL_NUM] = {
-	"http://term.ie/oauth/example/request_token.php",
-	NULL,
-	"http://term.ie/oauth/example/access_token.php",
-	"http://term.ie/oauth/example/echo_api.php?method=foo%20bar&bar=baz",
+struct provider_info {
+	const char *name;
+	const char *url[URL_NUM];
 };
 
-static const char *opent_url[URL_NUM] = {
-	"http://open.t.qq.com/cgi-bin/request_token",
-	"http://open.t.qq.com/cgi-bin/authorize",
-	"http://open.t.qq.com/cgi-bin/access_token",
-	"http://open.t.qq.com/api/statuses/home_timeline",
+struct unim_account {
+	struct provider_info *provider;
+	struct consumer_info consumer;
 };
 
-static struct consumer_info term_consumer = {"key", "secret"};
-static struct consumer_info opent_consumer = {"801063896", "01291aa844d9c075d7daf302bc0330db"};
+enum {
+	PROVIDER_TERM = 0,
+	PROVIDER_OPENT,
 
-static const char **url = opent_url;
-static struct consumer_info *consumer = &opent_consumer;
+	PROVIDER_NUM
+};
+
+static struct provider_info providers[PROVIDER_NUM] = {
+	{
+		"term",
+		{"http://term.ie/oauth/example/request_token.php",
+		 NULL,
+		 "http://term.ie/oauth/example/access_token.php",
+		 "http://term.ie/oauth/example/echo_api.php?method=foo%20bar&bar=baz",
+		},
+	},
+
+	{
+		"opent",
+		{"http://open.t.qq.com/cgi-bin/request_token",
+		 "http://open.t.qq.com/cgi-bin/authorize",
+		 "http://open.t.qq.com/cgi-bin/access_token",
+		 "http://open.t.qq.com/api/statuses/home_timeline",
+		},
+	},
+};
+
+static struct unim_account accounts[] = {
+	{
+	 &providers[PROVIDER_TERM],
+	 {"key", "secret"},
+	},
+
+	{
+	 &providers[PROVIDER_OPENT],
+	 {"801063896", "01291aa844d9c075d7daf302bc0330db"},
+	},
+};
+
+static struct unim_account *account = &accounts[1];
 
 static void build_gui();
 
@@ -96,12 +125,12 @@ static void login_button_press(GtkWidget *widget,
 
 	clean_login_info();
 
-	login_info.authorize_uri = url[URL_AUTHORIZE];
-	login_info.request_token_uri = gtk_entry_get_text(GTK_ENTRY(reqtk_uri_entry));
-	login_info.access_token_uri = gtk_entry_get_text(GTK_ENTRY(acctk_uri_entry));
-	login_info.consumer_key = gtk_entry_get_text(GTK_ENTRY(ckey_entry));
-	login_info.consumer_secret = gtk_entry_get_text(GTK_ENTRY(csecret_entry));
-	if (url == opent_url) {
+	login_info.authorize_uri = account->provider->url[URL_AUTHORIZE];
+	login_info.request_token_uri = account->provider->url[URL_REQUEST];
+	login_info.access_token_uri = account->provider->url[URL_ACCESS];
+	login_info.consumer_key = account->consumer.key;
+	login_info.consumer_secret = account->consumer.secret;
+	if (strcmp(account->provider->name, "opent") == 0) {
 		login_info.request_added_argc = 1;
 		login_info.request_added_argv[0] = "oauth_callback=null";
 	}
@@ -201,34 +230,6 @@ static void build_gui()
 	GtkWidget *label;
 
 	/*
-	 * request token uri
-	 */
-	hbox = gtk_hbox_new(FALSE, 1);
-	label = gtk_label_new("Request Token URI");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-	reqtk_uri_entry = gtk_entry_new();
-	gtk_editable_set_editable(GTK_EDITABLE(reqtk_uri_entry), TRUE);
-	gtk_entry_set_width_chars(GTK_ENTRY(reqtk_uri_entry), 80);
-	gtk_entry_set_text(GTK_ENTRY(reqtk_uri_entry), url[URL_REQUEST]);
-	gtk_box_pack_start(GTK_BOX(hbox), reqtk_uri_entry, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-	/*
-	 * access token uri
-	 */
-	hbox = gtk_hbox_new(FALSE, 1);
-	label = gtk_label_new("Access Token URI");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-	acctk_uri_entry = gtk_entry_new();
-	gtk_editable_set_editable(GTK_EDITABLE(acctk_uri_entry), TRUE);
-	gtk_entry_set_width_chars(GTK_ENTRY(acctk_uri_entry), 80);
-	gtk_entry_set_text(GTK_ENTRY(acctk_uri_entry), url[URL_ACCESS]);
-	gtk_box_pack_start(GTK_BOX(hbox), acctk_uri_entry, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-	/*
 	 * api call uri
 	 */
 	hbox = gtk_hbox_new(FALSE, 1);
@@ -237,36 +238,8 @@ static void build_gui()
 	api_call_uri_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(api_call_uri_entry), TRUE);
 	gtk_entry_set_width_chars(GTK_ENTRY(api_call_uri_entry), 80);
-	gtk_entry_set_text(GTK_ENTRY(api_call_uri_entry), url[URL_API]);
+	gtk_entry_set_text(GTK_ENTRY(api_call_uri_entry), account->provider->url[URL_API]);
 	gtk_box_pack_start(GTK_BOX(hbox), api_call_uri_entry, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-	/*
-	 * Consumer Key
-	 */
-	hbox = gtk_hbox_new(FALSE, 1);
-	label = gtk_label_new("Consumer Key");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-	ckey_entry = gtk_entry_new();
-	gtk_editable_set_editable(GTK_EDITABLE(ckey_entry), TRUE);
-	gtk_entry_set_width_chars(GTK_ENTRY(ckey_entry), 80);
-	gtk_entry_set_text(GTK_ENTRY(ckey_entry), consumer->key);
-	gtk_box_pack_start(GTK_BOX(hbox), ckey_entry, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-	/*
-	 * Consumer Secret
-	 */
-	hbox = gtk_hbox_new(FALSE, 1);
-	label = gtk_label_new("Consumer Secret");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-	csecret_entry = gtk_entry_new();
-	gtk_editable_set_editable(GTK_EDITABLE(csecret_entry), TRUE);
-	gtk_entry_set_width_chars(GTK_ENTRY(csecret_entry), 80);
-	gtk_entry_set_text(GTK_ENTRY(csecret_entry), consumer->secret);
-	gtk_box_pack_start(GTK_BOX(hbox), csecret_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
