@@ -4,12 +4,14 @@
 
 struct unim_login_info {
 	char *request_token_uri;
+	char *authorize_uri;
 	char *access_token_uri;
 	char *consumer_key;
 	char *consumer_secret;
 
 	char *res_token_key;
 	char *res_token_secret;
+	char *verifier;
 	char *access_token_key;
 	char *access_token_secret;
 
