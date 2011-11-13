@@ -4,7 +4,7 @@
 #include "unim_oauth.h"
 
 
-static GtkWidget *btn;
+static GtkWidget *btn, *api_call_btn;
 static GtkWidget *reqtk_uri_entry, *ckey_entry, *csecret_entry;
 static GtkWidget *token_entry, *token_secret_entry;
 static GtkWidget *acctk_uri_entry;
@@ -12,6 +12,7 @@ static GtkWidget *access_token_entry, *access_token_secret_entry;
 static GtkWidget *api_call_uri_entry, *result_entry;
 static GtkWidget *verifier_entry;
 
+static struct unim_login_info login_info;
 
 struct consumer_info {
 	const char *key;
@@ -38,7 +39,7 @@ static const char *opent_url[URL_NUM] = {
 	"https://open.t.qq.com/cgi-bin/request_token",
 	"https://open.t.qq.com/cgi-bin/authorize",
 	"https://open.t.qq.com/cgi-bin/access_token",
-	"https://open.t.qq.com/cgi-bin/timeline",
+	"https://open.t.qq.com/api/statuses/home_timeline",
 };
 
 static struct consumer_info term_consumer = {"key", "secret"};
@@ -48,6 +49,15 @@ static const char **url = opent_url;
 static struct consumer_info *consumer = &opent_consumer;
 
 static void build_gui();
+
+static void clean_login_info()
+{
+	free(login_info.res_token_key);
+	free(login_info.res_token_secret);
+	free(login_info.access_token_key);
+	free(login_info.access_token_secret);
+	memset(&login_info, 0, sizeof(login_info));
+}
 
 void unim_init()
 {
@@ -73,7 +83,6 @@ static void msg_win_destroy(GtkWidget *widget, gpointer data)
 static void login_button_press(GtkWidget *widget,
 			GdkEventButton *event, gpointer *data)
 {
-	static struct unim_login_info login_info = {0};
 	int rc;
 
 	if (strcmp(gtk_button_get_label(GTK_BUTTON(btn)), "Verify") == 0) {
@@ -85,7 +94,7 @@ static void login_button_press(GtkWidget *widget,
 		goto do_access_token;
 	}
 
-	memset(&login_info, 0, sizeof(login_info));
+	clean_login_info();
 
 	login_info.authorize_uri = url[URL_AUTHORIZE];
 	login_info.request_token_uri = gtk_entry_get_text(GTK_ENTRY(reqtk_uri_entry));
@@ -141,24 +150,30 @@ do_access_token:
 	gtk_entry_set_text(GTK_ENTRY(access_token_entry), login_info.access_token_key);
 	gtk_entry_set_text(GTK_ENTRY(access_token_secret_entry), login_info.access_token_secret);
 
-	/*
-	 * test api call
-	 */
+	login_info.login = 1;
+	return;
+
+error_out:
+	clean_login_info();
+}
+
+static void api_call_button_press(GtkWidget *widget,
+			GdkEventButton *event, gpointer *data)
+{
 	struct unim_api_call_info api_call_info = {0};
+	int rc;
+
+	if (!login_info.login)
+		return;
+
 	api_call_info.uri = gtk_entry_get_text(GTK_ENTRY(api_call_uri_entry));
 	rc = unim_oauth_api_call(&login_info, &api_call_info);
 	if (rc) {
 		gtk_entry_set_text(GTK_ENTRY(result_entry), "Failed!");
-		goto error_out;
+		return;
 	}
 	gtk_entry_set_text(GTK_ENTRY(result_entry), api_call_info.result);
 	free(api_call_info.result);
-
-error_out:
-	free(login_info.res_token_key);
-	free(login_info.res_token_secret);
-	free(login_info.access_token_key);
-	free(login_info.access_token_secret);
 }
 
 static void build_gui()
@@ -256,13 +271,24 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 	/*
-	 * button
+	 * login button
 	 */
 	hbox = gtk_hbox_new(FALSE, 1);
 	btn = gtk_button_new_with_label("Login");
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
 			GTK_SIGNAL_FUNC(login_button_press), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+	/*
+	 * api call button
+	 */
+	hbox = gtk_hbox_new(FALSE, 1);
+	api_call_btn = gtk_button_new_with_label("API Call");
+	gtk_signal_connect(GTK_OBJECT(api_call_btn), "button_press_event",
+			GTK_SIGNAL_FUNC(api_call_button_press), NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), api_call_btn, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 

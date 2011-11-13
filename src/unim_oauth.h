@@ -3,6 +3,8 @@
 
 
 struct unim_login_info {
+	int login;
+
 	char *request_token_uri;
 	char *authorize_uri;
 	char *access_token_uri;
