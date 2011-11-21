@@ -7,7 +7,7 @@
 static GtkWidget *btn, *api_call_btn;
 static GtkWidget *token_entry, *token_secret_entry;
 static GtkWidget *access_token_entry, *access_token_secret_entry;
-static GtkWidget *api_call_uri_entry, *result_entry;
+static GtkWidget *api_call_uri_entry, *result_view;
 static GtkWidget *verifier_entry;
 
 static struct unim_login_info login_info;
@@ -191,17 +191,19 @@ static void api_call_button_press(GtkWidget *widget,
 {
 	struct unim_api_call_info api_call_info = {0};
 	int rc;
+	GtkTextBuffer *text_buf;
 
 	if (!login_info.login)
 		return;
 
+	text_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(result_view));
 	api_call_info.uri = gtk_entry_get_text(GTK_ENTRY(api_call_uri_entry));
 	rc = unim_oauth_api_call(&login_info, &api_call_info);
 	if (rc) {
-		gtk_entry_set_text(GTK_ENTRY(result_entry), "Failed!");
+		gtk_text_buffer_set_text(text_buf, "Failed!", -1);
 		return;
 	}
-	gtk_entry_set_text(GTK_ENTRY(result_entry), api_call_info.result);
+	gtk_text_buffer_set_text(text_buf, api_call_info.result, -1);
 	free(api_call_info.result);
 }
 
@@ -323,10 +325,11 @@ static void build_gui()
 	hbox = gtk_hbox_new(FALSE, 1);
 	label = gtk_label_new("Result");
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-	result_entry = gtk_entry_new();
-	gtk_editable_set_editable(GTK_EDITABLE(result_entry), FALSE);
-	gtk_entry_set_width_chars(GTK_ENTRY(result_entry), 80);
-	gtk_box_pack_start(GTK_BOX(hbox), result_entry, FALSE, FALSE, 0);
+	result_view = gtk_text_view_new();
+	gtk_widget_set_size_request(result_view, 600, 200);
+	gtk_text_view_set_editable(GTK_TEXT_VIEW(result_view), FALSE);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(result_view), GTK_WRAP_WORD);
+	gtk_box_pack_start(GTK_BOX(hbox), result_view, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
