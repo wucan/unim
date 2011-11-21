@@ -200,7 +200,9 @@ static void api_call_button_press(GtkWidget *widget,
 	api_call_info.uri = gtk_entry_get_text(GTK_ENTRY(api_call_uri_entry));
 	rc = unim_oauth_api_call(&login_info, &api_call_info);
 	if (rc) {
-		gtk_text_buffer_set_text(text_buf, "Failed!", -1);
+		char sbuf[256];
+		sprintf(sbuf, "Exec %s Failed!", api_call_info.uri);
+		gtk_text_buffer_set_text(text_buf, sbuf, -1);
 		return;
 	}
 	gtk_text_buffer_set_text(text_buf, api_call_info.result, -1);
