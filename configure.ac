@@ -18,6 +18,9 @@ AM_CONDITIONAL(HAVE_GTK, test "x$have_gtk" = "yes")
 
 PKG_CHECK_MODULES(oauth, "oauth", have_oauth=yes, have_oauth=no)
 
+# json support
+PKG_CHECK_MODULES(json, "json-glib-1.0", have_json=yes, have_json=no)
+
 AC_SUBST(VERSION)
 
 AC_OUTPUT([Makefile

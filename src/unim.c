@@ -39,6 +39,7 @@ struct unim_account {
 enum {
 	PROVIDER_TERM = 0,
 	PROVIDER_OPENT,
+	PROVIDER_WEIBO,
 
 	PROVIDER_NUM
 };
@@ -61,6 +62,15 @@ static struct provider_info providers[PROVIDER_NUM] = {
 		 "http://open.t.qq.com/api/statuses/home_timeline",
 		},
 	},
+
+	{
+		"weibo",
+		{NULL,
+		 "https://api.weibo.com/oauth2/authorize",
+		 "https://api.weibo.com/oauth2/access_token",
+		 "https://api.weibo.com/2/statuses/home_timeline.json",
+		},
+	},
 };
 
 static struct unim_account accounts[] = {
@@ -73,9 +83,14 @@ static struct unim_account accounts[] = {
 	 &providers[PROVIDER_OPENT],
 	 {"801063896", "01291aa844d9c075d7daf302bc0330db"},
 	},
+
+	{
+	 &providers[PROVIDER_WEIBO],
+	 {"2085678772", "ade7b75e363da0399f991cefa84655c7"},
+	},
 };
 
-static struct unim_account *account = &accounts[1];
+static struct unim_account *account = &accounts[2];
 
 static void build_gui();
 
@@ -109,10 +124,87 @@ static void msg_win_destroy(GtkWidget *widget, gpointer data)
 	gtk_main_quit();
 }
 
+static void weibo_login()
+{
+	int rc;
+
+	if (strcmp(gtk_button_get_label(GTK_BUTTON(btn)), "Verify") == 0) {
+		gtk_button_set_label(GTK_BUTTON(btn), "Login");
+		login_info.verifier = gtk_entry_get_text(GTK_ENTRY(verifier_entry));
+		if (!strlen(login_info.verifier)) {
+			return;
+		}
+		goto do_access_token;
+	}
+
+	clean_login_info();
+
+	login_info.authorize_uri = account->provider->url[URL_AUTHORIZE];
+	login_info.access_token_uri = account->provider->url[URL_ACCESS];
+	login_info.consumer_key = account->consumer.key;
+	login_info.consumer_secret = account->consumer.secret;
+
+	/*
+	 * authorize
+	 */
+	if (login_info.authorize_uri) {
+		rc = fork();
+		if (rc == 0) {
+			char cmd[256];
+			sprintf(cmd, "xdg-open \"%s?client_id=%s&redirect_uri=%s\"",
+				login_info.authorize_uri, login_info.consumer_key,
+				"http://unim.canbaby.org/response");
+			system(cmd);
+			exit(0);
+		}
+		gtk_button_set_label(GTK_BUTTON(btn), "Verify");
+		return;
+	}
+
+do_access_token:
+	login_info.request_added_argc = 5;
+	char client_id_buf[128], client_secret_buf[128];
+	sprintf(client_id_buf, "client_id=%s", login_info.consumer_key);
+	sprintf(client_secret_buf, "client_secret=%s", login_info.consumer_secret);
+	login_info.request_added_argv[0] = client_id_buf;
+	login_info.request_added_argv[1] = client_secret_buf;
+#if 0
+	/* use grant_type password need authorization from sina? */
+	login_info.request_added_argv[2] = "grant_type=password";
+	login_info.request_added_argv[3] = "username=wu.canus@gmail.com";
+	login_info.request_added_argv[4] = "password=xxxxxx";
+#else
+	char code_buf[128], redirect_uri_buf[128];
+	login_info.verifier = gtk_entry_get_text(GTK_ENTRY(verifier_entry));
+	if (!strlen(login_info.verifier)) {
+		return;
+	}
+	sprintf(code_buf, "code=%s", login_info.verifier);
+	sprintf(redirect_uri_buf, "redirect_uri=http://unim.canbaby.org/response");
+	login_info.request_added_argv[2] = "grant_type=authorization_code";
+	login_info.request_added_argv[3] = code_buf;
+	login_info.request_added_argv[4] = redirect_uri_buf;
+#endif
+	rc = weibo_oauth_access(&login_info);
+	if (rc) {
+		g_print("access token failed!\n");
+		return;
+	}
+
+	gtk_entry_set_text(GTK_ENTRY(access_token_entry), login_info.access_token_key);
+
+	login_info.login = 1;
+}
+
 static void login_button_press(GtkWidget *widget,
 			GdkEventButton *event, gpointer *data)
 {
 	int rc;
+
+	if (strcmp(account->provider->name, "weibo") == 0) {
+		weibo_login();
+		return;
+	}
 
 	if (strcmp(gtk_button_get_label(GTK_BUTTON(btn)), "Verify") == 0) {
 		gtk_button_set_label(GTK_BUTTON(btn), "Login");
@@ -198,7 +290,17 @@ static void api_call_button_press(GtkWidget *widget,
 
 	text_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(result_view));
 	api_call_info.uri = gtk_entry_get_text(GTK_ENTRY(api_call_uri_entry));
-	rc = unim_oauth_api_call(&login_info, &api_call_info);
+	if (strcmp(account->provider->name, "weibo") == 0) {
+		static char access_token_buf[128], source_buf[128];
+		sprintf(access_token_buf, "access_token=%s", login_info.access_token_key);
+		sprintf(source_buf, "source=%s", login_info.consumer_key);
+		login_info.request_added_argc = 2;
+		login_info.request_added_argv[0] = access_token_buf;
+		login_info.request_added_argv[1] = source_buf;
+		rc = weibo_oauth_api_call(&login_info, &api_call_info);
+	} else {
+		rc = unim_oauth_api_call(&login_info, &api_call_info);
+	}
 	if (rc) {
 		char sbuf[256];
 		sprintf(sbuf, "Exec %s Failed!", api_call_info.uri);
@@ -336,10 +438,10 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 	/*
-	 * verifier
+	 * verifier or Authorization_Code
 	 */
 	hbox = gtk_hbox_new(FALSE, 1);
-	label = gtk_label_new("Verifier");
+	label = gtk_label_new("Verifier/Authorization_Code");
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	verifier_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(verifier_entry), TRUE);

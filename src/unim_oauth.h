@@ -31,6 +31,11 @@ int unim_oauth_access(struct unim_login_info *login_info);
 int unim_oauth_api_call(struct unim_login_info *login_info,
 				struct unim_api_call_info *api_call_info);
 
+/* weibo routines */
+int weibo_oauth_access(struct unim_login_info *login_info);
+int weibo_oauth_api_call(struct unim_login_info *login_info,
+				struct unim_api_call_info *api_call_info);
+
 
 #endif /* _UNIM_OAUTH_H_ */
 

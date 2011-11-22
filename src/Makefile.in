@@ -49,10 +49,11 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__objects_1 =
 am_unim_OBJECTS = main.$(OBJEXT) oauth_test.$(OBJEXT) unim.$(OBJEXT) \
-	unim_oauth.$(OBJEXT) $(am__objects_1)
+	unim_oauth.$(OBJEXT) weibo_oauth.$(OBJEXT) $(am__objects_1)
 unim_OBJECTS = $(am_unim_OBJECTS)
 am__DEPENDENCIES_1 =
-unim_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+unim_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -209,6 +210,8 @@ htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
 install_sh = @install_sh@
+json_CFLAGS = @json_CFLAGS@
+json_LIBS = @json_LIBS@
 libdir = @libdir@
 libexecdir = @libexecdir@
 localedir = @localedir@
@@ -233,17 +236,17 @@ top_srcdir = @top_srcdir@
 AM_CFLAGS = $(CFLAGS) \
 	-I $(top_srcdir)/include \
 	-I $(srcdir)/include \
-	$(gtk_CFLAGS) $(oauth_CFLAGS)
+	$(gtk_CFLAGS) $(oauth_CFLAGS) $(json_CFLAGS)
 
 unim_LDADD = \
 	-lm -lpthread \
-	$(gtk_LIBS) $(oauth_LIBS)
+	$(gtk_LIBS) $(oauth_LIBS) $(json_LIBS)
 
 NULL_FILE = 
 unim_SOURCES = \
 	main.c \
 	oauth_test.c \
-	unim.c unim_oauth.c \
+	unim.c unim_oauth.c weibo_oauth.c \
 	$(NULL_FILE)
 
 SUBDIRS = 
@@ -338,6 +341,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/oauth_test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unim.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unim_oauth.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/weibo_oauth.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

@@ -615,6 +615,8 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+json_LIBS
+json_CFLAGS
 oauth_LIBS
 oauth_CFLAGS
 HAVE_GTK_FALSE
@@ -762,7 +764,9 @@ PKG_CONFIG_LIBDIR
 gtk_CFLAGS
 gtk_LIBS
 oauth_CFLAGS
-oauth_LIBS'
+oauth_LIBS
+json_CFLAGS
+json_LIBS'
 
 
 # Initialize some variables set by options.
@@ -1421,6 +1425,8 @@ Some influential environment variables:
   oauth_CFLAGS
               C compiler flags for oauth, overriding pkg-config
   oauth_LIBS  linker flags for oauth, overriding pkg-config
+  json_CFLAGS C compiler flags for json, overriding pkg-config
+  json_LIBS   linker flags for json, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -11441,6 +11447,79 @@ else
         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
 	have_oauth=yes
+fi
+
+# json support
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for json" >&5
+$as_echo_n "checking for json... " >&6; }
+
+if test -n "$json_CFLAGS"; then
+    pkg_cv_json_CFLAGS="$json_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"\"json-glib-1.0\"\""; } >&5
+  ($PKG_CONFIG --exists --print-errors ""json-glib-1.0"") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_json_CFLAGS=`$PKG_CONFIG --cflags ""json-glib-1.0"" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$json_LIBS"; then
+    pkg_cv_json_LIBS="$json_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"\"json-glib-1.0\"\""; } >&5
+  ($PKG_CONFIG --exists --print-errors ""json-glib-1.0"") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_json_LIBS=`$PKG_CONFIG --libs ""json-glib-1.0"" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        json_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs ""json-glib-1.0"" 2>&1`
+        else
+	        json_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs ""json-glib-1.0"" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$json_PKG_ERRORS" >&5
+
+	have_json=no
+elif test $pkg_failed = untried; then
+     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	have_json=no
+else
+	json_CFLAGS=$pkg_cv_json_CFLAGS
+	json_LIBS=$pkg_cv_json_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	have_json=yes
 fi
 
 
