@@ -333,6 +333,7 @@ static void build_gui()
 	vbox = gtk_vbox_new(FALSE, 1);
 	gtk_container_add(GTK_CONTAINER(msg_win), vbox);
 
+	GtkTable *table;
 	GtkWidget *label;
 	char *markup;
 
@@ -433,43 +434,37 @@ static void build_gui()
 	/*
 	 * api call uri
 	 */
-	hbox = gtk_hbox_new(FALSE, 1);
-	label = gtk_label_new("API Call URI");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	table = gtk_table_new(2, 3, FALSE);
+	label = gtk_label_new("URI");
+	gtk_table_attach_defaults(table, label, 0, 1, 0, 1);
 	api_call_uri_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(api_call_uri_entry), TRUE);
 	gtk_entry_set_width_chars(GTK_ENTRY(api_call_uri_entry), 80);
 	gtk_entry_set_text(GTK_ENTRY(api_call_uri_entry), account->provider->url[URL_API]);
-	gtk_box_pack_start(GTK_BOX(hbox), api_call_uri_entry, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, api_call_uri_entry, 1, 2, 0, 1);
 
 	/*
 	 * api call button
 	 */
-	hbox = gtk_hbox_new(FALSE, 1);
 	api_call_btn = gtk_button_new_with_label("API Call");
 	gtk_signal_connect(GTK_OBJECT(api_call_btn), "button_press_event",
 			GTK_SIGNAL_FUNC(api_call_button_press), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox), api_call_btn, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, api_call_btn, 2, 3, 0, 1);
 
 	/*
 	 * API Call Result
 	 */
-	hbox = gtk_hbox_new(FALSE, 1);
 	label = gtk_label_new("Result");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, label, 0, 1, 1, 2);
 	result_view = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(result_view), FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(result_view), GTK_WRAP_WORD);
 	GtkScrolledWindow *sw = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_add_with_viewport(sw, result_view);
 	gtk_widget_set_size_request(sw, -1, 200);
-	gtk_box_pack_start(GTK_BOX(hbox), sw, TRUE, TRUE, 0);
+	gtk_table_attach_defaults(table, sw, 1, 3, 1, 2);
 
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), table, TRUE, TRUE, 0);
 
 	/*
 	 * show gui
