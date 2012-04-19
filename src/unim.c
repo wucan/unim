@@ -314,7 +314,7 @@ static void api_call_button_press(GtkWidget *widget,
 static void build_gui()
 {
 	GtkWidget *msg_win;
-	GtkWidget *vbox, *hbox;
+	GtkWidget *vbox;
 
 	msg_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(msg_win), 600, 400);
@@ -349,78 +349,63 @@ static void build_gui()
 	/*
 	 * login button
 	 */
-	hbox = gtk_hbox_new(FALSE, 1);
+	table = gtk_table_new(5, 3, FALSE);
 	btn = gtk_button_new_with_label("Login");
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
 			GTK_SIGNAL_FUNC(login_button_press), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, btn, 2, 3, 0, 1);
 
 	/*
 	 * verifier or Authorization_Code
 	 */
-	hbox = gtk_hbox_new(FALSE, 1);
 	label = gtk_label_new("Verifier/Authorization_Code");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, label, 0, 1, 1, 2);
 	verifier_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(verifier_entry), TRUE);
 	gtk_entry_set_width_chars(GTK_ENTRY(verifier_entry), 80);
-	gtk_box_pack_start(GTK_BOX(hbox), verifier_entry, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, verifier_entry, 1, 2, 1, 2);
 
 	/*
 	 * Reply oauth Token
 	 */
-	hbox = gtk_hbox_new(FALSE, 1);
 	label = gtk_label_new("Token");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, label, 0, 1, 2, 3);
 	token_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(token_entry), FALSE);
 	gtk_entry_set_width_chars(GTK_ENTRY(token_entry), 80);
-	gtk_box_pack_start(GTK_BOX(hbox), token_entry, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, token_entry, 1, 2, 2, 3);
 
 	/*
 	 * Reply oauth Token Secret
 	 */
-	hbox = gtk_hbox_new(FALSE, 1);
 	label = gtk_label_new("Token Secret");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, label, 0, 1, 3, 4);
 	token_secret_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(token_secret_entry), FALSE);
 	gtk_entry_set_width_chars(GTK_ENTRY(token_secret_entry), 80);
-	gtk_box_pack_start(GTK_BOX(hbox), token_secret_entry, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, token_secret_entry, 1, 2, 3, 4);
 
 	/*
 	 * Reply oauth Access Token
 	 */
-	hbox = gtk_hbox_new(FALSE, 1);
 	label = gtk_label_new("Access Token");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, label, 0, 1, 4, 5);
 	access_token_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(access_token_entry), FALSE);
 	gtk_entry_set_width_chars(GTK_ENTRY(access_token_entry), 80);
-	gtk_box_pack_start(GTK_BOX(hbox), access_token_entry, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, access_token_entry, 1, 2, 4, 5);
 
 	/*
 	 * Reply oauth Access Token Secret
 	 */
-	hbox = gtk_hbox_new(FALSE, 1);
 	label = gtk_label_new("Access Token Secret");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, label, 0, 1, 5, 6);
 	access_token_secret_entry = gtk_entry_new();
 	gtk_editable_set_editable(GTK_EDITABLE(access_token_secret_entry), FALSE);
 	gtk_entry_set_width_chars(GTK_ENTRY(access_token_secret_entry), 80);
-	gtk_box_pack_start(GTK_BOX(hbox), access_token_secret_entry, FALSE, FALSE, 0);
+	gtk_table_attach_defaults(table, access_token_secret_entry, 1, 2, 5, 6);
 
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), table, FALSE, FALSE, 0);
 
 	/*
 	 * begin api call widgets
