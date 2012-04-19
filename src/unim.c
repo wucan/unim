@@ -336,20 +336,6 @@ static void build_gui()
 	GtkWidget *label;
 
 	/*
-	 * api call uri
-	 */
-	hbox = gtk_hbox_new(FALSE, 1);
-	label = gtk_label_new("API Call URI");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-	api_call_uri_entry = gtk_entry_new();
-	gtk_editable_set_editable(GTK_EDITABLE(api_call_uri_entry), TRUE);
-	gtk_entry_set_width_chars(GTK_ENTRY(api_call_uri_entry), 80);
-	gtk_entry_set_text(GTK_ENTRY(api_call_uri_entry), account->provider->url[URL_API]);
-	gtk_box_pack_start(GTK_BOX(hbox), api_call_uri_entry, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-	/*
 	 * login button
 	 */
 	hbox = gtk_hbox_new(FALSE, 1);
@@ -357,17 +343,6 @@ static void build_gui()
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
 			GTK_SIGNAL_FUNC(login_button_press), NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), btn, FALSE, FALSE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-	/*
-	 * api call button
-	 */
-	hbox = gtk_hbox_new(FALSE, 1);
-	api_call_btn = gtk_button_new_with_label("API Call");
-	gtk_signal_connect(GTK_OBJECT(api_call_btn), "button_press_event",
-			GTK_SIGNAL_FUNC(api_call_button_press), NULL);
-	gtk_box_pack_start(GTK_BOX(hbox), api_call_btn, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
@@ -420,6 +395,31 @@ static void build_gui()
 	gtk_editable_set_editable(GTK_EDITABLE(access_token_secret_entry), FALSE);
 	gtk_entry_set_width_chars(GTK_ENTRY(access_token_secret_entry), 80);
 	gtk_box_pack_start(GTK_BOX(hbox), access_token_secret_entry, FALSE, FALSE, 0);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+	/*
+	 * api call uri
+	 */
+	hbox = gtk_hbox_new(FALSE, 1);
+	label = gtk_label_new("API Call URI");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	api_call_uri_entry = gtk_entry_new();
+	gtk_editable_set_editable(GTK_EDITABLE(api_call_uri_entry), TRUE);
+	gtk_entry_set_width_chars(GTK_ENTRY(api_call_uri_entry), 80);
+	gtk_entry_set_text(GTK_ENTRY(api_call_uri_entry), account->provider->url[URL_API]);
+	gtk_box_pack_start(GTK_BOX(hbox), api_call_uri_entry, FALSE, FALSE, 0);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+	/*
+	 * api call button
+	 */
+	hbox = gtk_hbox_new(FALSE, 1);
+	api_call_btn = gtk_button_new_with_label("API Call");
+	gtk_signal_connect(GTK_OBJECT(api_call_btn), "button_press_event",
+			GTK_SIGNAL_FUNC(api_call_button_press), NULL);
+	gtk_box_pack_start(GTK_BOX(hbox), api_call_btn, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
