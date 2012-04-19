@@ -357,6 +357,19 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
 	/*
+	 * verifier or Authorization_Code
+	 */
+	hbox = gtk_hbox_new(FALSE, 1);
+	label = gtk_label_new("Verifier/Authorization_Code");
+	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+	verifier_entry = gtk_entry_new();
+	gtk_editable_set_editable(GTK_EDITABLE(verifier_entry), TRUE);
+	gtk_entry_set_width_chars(GTK_ENTRY(verifier_entry), 80);
+	gtk_box_pack_start(GTK_BOX(hbox), verifier_entry, FALSE, FALSE, 0);
+
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+	/*
 	 * Reply oauth Token
 	 */
 	hbox = gtk_hbox_new(FALSE, 1);
@@ -455,19 +468,6 @@ static void build_gui()
 	gtk_scrolled_window_add_with_viewport(sw, result_view);
 	gtk_widget_set_size_request(sw, -1, 200);
 	gtk_box_pack_start(GTK_BOX(hbox), sw, TRUE, TRUE, 0);
-
-	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-	/*
-	 * verifier or Authorization_Code
-	 */
-	hbox = gtk_hbox_new(FALSE, 1);
-	label = gtk_label_new("Verifier/Authorization_Code");
-	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
-	verifier_entry = gtk_entry_new();
-	gtk_editable_set_editable(GTK_EDITABLE(verifier_entry), TRUE);
-	gtk_entry_set_width_chars(GTK_ENTRY(verifier_entry), 80);
-	gtk_box_pack_start(GTK_BOX(hbox), verifier_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
