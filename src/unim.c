@@ -430,10 +430,12 @@ static void build_gui()
 	label = gtk_label_new("Result");
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 	result_view = gtk_text_view_new();
-	gtk_widget_set_size_request(result_view, 600, 200);
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(result_view), FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(result_view), GTK_WRAP_WORD);
-	gtk_box_pack_start(GTK_BOX(hbox), result_view, FALSE, FALSE, 0);
+	GtkScrolledWindow *sw = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_add_with_viewport(sw, result_view);
+	gtk_widget_set_size_request(sw, 600, 200);
+	gtk_box_pack_start(GTK_BOX(hbox), sw, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
