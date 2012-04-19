@@ -334,6 +334,16 @@ static void build_gui()
 	gtk_container_add(GTK_CONTAINER(msg_win), vbox);
 
 	GtkWidget *label;
+	char *markup;
+
+	/*
+	 * begin login and auth widgets
+	 */
+	label = gtk_label_new(NULL);
+	markup = g_markup_printf_escaped(
+		"<span style=\"italic\">%s</span>", "Login & Auth");
+	gtk_label_set_markup(GTK_LABEL(label), markup);
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 
 	/*
 	 * login button
@@ -397,6 +407,15 @@ static void build_gui()
 	gtk_box_pack_start(GTK_BOX(hbox), access_token_secret_entry, FALSE, FALSE, 0);
 
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+	/*
+	 * begin api call widgets
+	 */
+	label = gtk_label_new(NULL);
+	markup = g_markup_printf_escaped(
+		"<span style=\"italic\">%s</span>", "API Call");
+	gtk_label_set_markup(GTK_LABEL(label), markup);
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 
 	/*
 	 * api call uri
