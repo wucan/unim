@@ -9,6 +9,7 @@ static GtkWidget *token_entry, *token_secret_entry;
 static GtkWidget *access_token_entry, *access_token_secret_entry;
 static GtkWidget *api_call_uri_entry, *result_view;
 static GtkWidget *verifier_entry;
+static GtkComboBoxText *provider_cbox, *url_cbox;
 
 static struct unim_login_info login_info;
 
@@ -90,7 +91,7 @@ static struct unim_account accounts[] = {
 	},
 };
 
-static struct unim_account *account = &accounts[2];
+static struct unim_account *account = &accounts[PROVIDER_WEIBO];
 
 static void build_gui();
 
@@ -311,6 +312,39 @@ static void api_call_button_press(GtkWidget *widget,
 	free(api_call_info.result);
 }
 
+static void _gtk_combo_box_text_remove_all(GtkComboBoxText *cbox)
+{
+	GtkTreeModel *model = gtk_combo_box_get_model(cbox);
+	int n = gtk_tree_model_iter_n_children(model, NULL);
+	int i;
+
+	for (i = n - 1; i >= 0; i--)
+		gtk_combo_box_text_remove(cbox, i);
+}
+
+static void provider_cbox_changed(GtkComboBox *cbox, gpointer user_data)
+{
+	int provider_idx;
+	int i;
+
+	provider_idx = gtk_combo_box_get_active(cbox);
+	// update account
+	account = &accounts[provider_idx];
+	// clear old urls
+	_gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(url_cbox));
+	// fillin new urls
+	struct provider_info *pi = &providers[provider_idx];
+	for (i = 0; i < URL_NUM; i++) {
+		if (pi->url[i])
+			gtk_combo_box_text_append_text(url_cbox, pi->url[i]);
+		else
+			gtk_combo_box_text_append_text(url_cbox, "NA");
+	}
+	gtk_combo_box_set_active(url_cbox, 0);
+	// update api call uri
+	gtk_entry_set_text(GTK_ENTRY(api_call_uri_entry), pi->url[URL_API]);
+}
+
 static void build_gui()
 {
 	GtkWidget *msg_win;
@@ -336,6 +370,7 @@ static void build_gui()
 	GtkTable *table;
 	GtkWidget *label;
 	char *markup;
+	int i;
 
 	/*
 	 * begin login and auth widgets
@@ -346,10 +381,40 @@ static void build_gui()
 	gtk_label_set_markup(GTK_LABEL(label), markup);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 
+	table = gtk_table_new(5, 3, FALSE);
+
+	/*
+	 * service provider
+	 */
+	provider_cbox = gtk_combo_box_text_new();
+	for (i = 0; i < PROVIDER_NUM; i++)
+		gtk_combo_box_text_append_text(provider_cbox, providers[i].name);
+	gtk_combo_box_set_active(provider_cbox, PROVIDER_WEIBO);
+	gtk_signal_connect(GTK_OBJECT(provider_cbox), "changed",
+			GTK_SIGNAL_FUNC(provider_cbox_changed), NULL);
+	gtk_table_attach_defaults(table, provider_cbox, 0, 1, 0, 1);
+
+	/*
+	 * service url
+	 */
+	struct provider_info *pi = &providers[PROVIDER_WEIBO];
+	url_cbox = gtk_combo_box_text_new();
+	for (i = 0; i < URL_NUM; i++) {
+		if (pi->url[i])
+			gtk_combo_box_text_append_text(url_cbox, pi->url[i]);
+		else
+			gtk_combo_box_text_append_text(url_cbox, "NA");
+	}
+	gtk_combo_box_set_active(url_cbox, 0);
+	// add tearoffs
+	gtk_combo_box_set_add_tearoffs(url_cbox, TRUE);
+	gtk_combo_box_set_title(url_cbox, "urls");
+
+	gtk_table_attach_defaults(table, url_cbox, 1, 2, 0, 1);
+
 	/*
 	 * login button
 	 */
-	table = gtk_table_new(5, 3, FALSE);
 	btn = gtk_button_new_with_label("Login");
 	gtk_signal_connect(GTK_OBJECT(btn), "button_press_event",
 			GTK_SIGNAL_FUNC(login_button_press), NULL);
