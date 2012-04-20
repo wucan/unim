@@ -312,6 +312,19 @@ static void api_call_button_press(GtkWidget *widget,
 	free(api_call_info.result);
 }
 
+static void reset_text_widgets()
+{
+	gtk_entry_set_text(GTK_ENTRY(token_entry), "");
+	gtk_entry_set_text(GTK_ENTRY(token_secret_entry), "");
+	gtk_entry_set_text(GTK_ENTRY(access_token_entry), "");
+	gtk_entry_set_text(GTK_ENTRY(access_token_secret_entry), "");
+	gtk_entry_set_text(GTK_ENTRY(verifier_entry), "");
+
+	GtkTextBuffer *text_buf;
+	text_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(result_view));
+	gtk_text_buffer_set_text(text_buf, "", -1);
+}
+
 static void _gtk_combo_box_text_remove_all(GtkComboBoxText *cbox)
 {
 	GtkTreeModel *model = gtk_combo_box_get_model(cbox);
@@ -343,6 +356,8 @@ static void provider_cbox_changed(GtkComboBox *cbox, gpointer user_data)
 	gtk_combo_box_set_active(url_cbox, 0);
 	// update api call uri
 	gtk_entry_set_text(GTK_ENTRY(api_call_uri_entry), pi->url[URL_API]);
+
+	reset_text_widgets();
 }
 
 static void build_gui()
