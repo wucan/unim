@@ -4,10 +4,10 @@
 #include "unim_oauth.h"
 
 
-static GtkWidget *btn, *api_call_btn;
+static GtkWidget *btn, *api_call_btn, *post_btn;
 static GtkWidget *token_entry, *token_secret_entry;
 static GtkWidget *access_token_entry, *access_token_secret_entry;
-static GtkWidget *api_call_uri_entry, *result_view;
+static GtkWidget *api_call_uri_entry, *result_view, *post_view;
 static GtkWidget *verifier_entry;
 static GtkComboBoxText *provider_cbox, *url_cbox;
 
@@ -312,6 +312,45 @@ static void api_call_button_press(GtkWidget *widget,
 	free(api_call_info.result);
 }
 
+static void post_button_press(GtkWidget *widget,
+			GdkEventButton *event, gpointer *data)
+{
+	struct unim_api_call_info api_call_info = {0};
+	int rc;
+	GtkTextBuffer *text_buf;
+
+	if (!login_info.login)
+		return;
+
+	api_call_info.uri = "https://api.weibo.com/2/statuses/update.json";
+
+	text_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(post_view));
+	if (strcmp(account->provider->name, "weibo") == 0) {
+		GtkTextIter siter, eiter;
+		gtk_text_buffer_get_start_iter(text_buf, &siter);
+		gtk_text_buffer_get_end_iter(text_buf, &eiter);
+		static char access_token_buf[128], status_buf[256];
+		sprintf(access_token_buf, "access_token=%s", login_info.access_token_key);
+		sprintf(status_buf, "status=%s",
+			gtk_text_buffer_get_text(text_buf, &siter, &eiter, FALSE));
+		login_info.request_added_argc = 2;
+		login_info.request_added_argv[0] = access_token_buf;
+		login_info.request_added_argv[1] = status_buf;
+		rc = weibo_statuses_update(&login_info, &api_call_info);
+	} else {
+		printf("%s: post not implemented!\n", account->provider->name);
+		return;
+	}
+
+	text_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(result_view));
+	if (rc) {
+		gtk_text_buffer_set_text(text_buf, "post failed!", -1);
+	} else {
+		gtk_text_buffer_set_text(text_buf, api_call_info.result, -1);
+		free(api_call_info.result);
+	}
+}
+
 static void reset_text_widgets()
 {
 	gtk_entry_set_text(GTK_ENTRY(token_entry), "");
@@ -499,7 +538,7 @@ static void build_gui()
 	/*
 	 * api call uri
 	 */
-	table = gtk_table_new(2, 3, FALSE);
+	table = gtk_table_new(2, 4, FALSE);
 	label = gtk_label_new("URI");
 	gtk_table_attach_defaults(table, label, 0, 1, 0, 1);
 	api_call_uri_entry = gtk_entry_new();
@@ -517,17 +556,37 @@ static void build_gui()
 	gtk_table_attach_defaults(table, api_call_btn, 2, 3, 0, 1);
 
 	/*
+	 * post button
+	 */
+	post_btn = gtk_button_new_with_label("Post");
+	gtk_signal_connect(GTK_OBJECT(post_btn), "button_press_event",
+			GTK_SIGNAL_FUNC(post_button_press), NULL);
+	gtk_table_attach_defaults(table, post_btn, 3, 4, 0, 1);
+
+	/*
+	 * post content
+	 */
+	label = gtk_label_new("Post");
+	gtk_table_attach_defaults(table, label, 0, 1, 1, 2);
+	post_view = gtk_text_view_new();
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(post_view), GTK_WRAP_WORD);
+	GtkScrolledWindow *sw0 = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_add_with_viewport(sw0, post_view);
+	gtk_widget_set_size_request(sw0, -1, 100);
+	gtk_table_attach_defaults(table, sw0, 1, 4, 1, 2);
+
+	/*
 	 * API Call Result
 	 */
 	label = gtk_label_new("Result");
-	gtk_table_attach_defaults(table, label, 0, 1, 1, 2);
+	gtk_table_attach_defaults(table, label, 0, 1, 2, 3);
 	result_view = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(result_view), FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(result_view), GTK_WRAP_WORD);
 	GtkScrolledWindow *sw = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_add_with_viewport(sw, result_view);
 	gtk_widget_set_size_request(sw, -1, 200);
-	gtk_table_attach_defaults(table, sw, 1, 3, 1, 2);
+	gtk_table_attach_defaults(table, sw, 1, 4, 2, 3);
 
 	gtk_box_pack_start(GTK_BOX(vbox), table, TRUE, TRUE, 0);
 

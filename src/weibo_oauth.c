@@ -7,6 +7,36 @@
 #include "unim_oauth.h"
 
 
+int weibo_statuses_update(struct unim_login_info *login_info,
+				struct unim_api_call_info *api_call_info)
+{
+	char *req_param, *reply;
+	int rc = -1;
+	int argc = 0;
+	char **argv = NULL;
+	int i;
+
+	argc = oauth_split_url_parameters(api_call_info->uri, &argv);
+	if (login_info->request_added_argc) {
+		for (i = 0; i < login_info->request_added_argc; i++) {
+			oauth_add_param_to_array(&argc, &argv,
+					login_info->request_added_argv[i]);
+		}
+	}
+	req_param = oauth_serialize_url_parameters(argc, argv);
+	reply = oauth_http_post(api_call_info->uri, req_param);
+	if (reply) {
+		/* TODO: check replay! */
+		api_call_info->result = reply;
+		rc = 0;
+	}
+
+	if (req_param)
+		free(req_param);
+
+	return rc;
+}
+
 int weibo_oauth_access(struct unim_login_info *login_info)
 {
 	char *req_param, *reply;
