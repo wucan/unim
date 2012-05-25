@@ -2,12 +2,15 @@
 
 #include "unim.h"
 #include "unim_oauth.h"
+#include "wu_http.h"
 
 
 static GtkWidget *btn, *api_call_btn, *post_btn;
 static GtkWidget *token_entry, *token_secret_entry;
 static GtkWidget *access_token_entry, *access_token_secret_entry;
 static GtkWidget *api_call_uri_entry, *result_view, *post_view;
+static GtkWidget *pic_check_btn, *pic_image;
+static char *pic_filename;
 static GtkWidget *verifier_entry;
 static GtkComboBoxText *provider_cbox, *url_cbox;
 
@@ -312,15 +315,27 @@ static void api_call_button_press(GtkWidget *widget,
 	free(api_call_info.result);
 }
 
+static void weibo_update();
+static void weibo_upload();
+
 static void post_button_press(GtkWidget *widget,
 			GdkEventButton *event, gpointer *data)
+{
+	if (!login_info.login)
+		return;
+
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(pic_check_btn)) &&
+		pic_filename)
+		weibo_upload();
+	else
+		weibo_update();
+}
+
+static void weibo_update()
 {
 	struct unim_api_call_info api_call_info = {0};
 	int rc;
 	GtkTextBuffer *text_buf;
-
-	if (!login_info.login)
-		return;
 
 	api_call_info.uri = "https://api.weibo.com/2/statuses/update.json";
 
@@ -349,6 +364,62 @@ static void post_button_press(GtkWidget *widget,
 		gtk_text_buffer_set_text(text_buf, api_call_info.result, -1);
 		free(api_call_info.result);
 	}
+}
+
+static void weibo_upload()
+{
+	int rc;
+	GtkTextBuffer *text_buf;
+	struct wu_http_post_request req;
+
+	wu_http_post_request_init(&req, "");
+
+	text_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(post_view));
+	if (strcmp(account->provider->name, "weibo") == 0) {
+		GtkTextIter siter, eiter;
+		gtk_text_buffer_get_start_iter(text_buf, &siter);
+		gtk_text_buffer_get_end_iter(text_buf, &eiter);
+
+		wu_http_post_request_init(&req,
+			"https://api.weibo.com/2/statuses/upload.json");
+		wu_http_post_request_add_content_arg(&req, "access_token",
+			login_info.access_token_key, 1);
+		wu_http_post_request_add_content_arg(&req, "status",
+			gtk_text_buffer_get_text(text_buf, &siter, &eiter, FALSE), 1);
+		wu_http_post_request_add_file_arg(&req, "pic", pic_filename);
+		rc = wu_http_post(&req);
+	} else {
+		printf("%s: post not implemented!\n", account->provider->name);
+		return;
+	}
+
+	text_buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(result_view));
+	if (rc) {
+		gtk_text_buffer_set_text(text_buf, "post failed!", -1);
+	} else {
+		gtk_text_buffer_set_text(text_buf, req.response, -1);
+	}
+
+	wu_http_post_request_free(&req);
+}
+
+static void pic_image_button_press(GtkWidget *widget, GdkEventButton *event, gpointer *data)
+{
+	GtkWidget *dialog;
+
+	dialog = gtk_file_chooser_dialog_new("Pick Picture", NULL,
+		GTK_FILE_CHOOSER_ACTION_OPEN,
+		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+		char *filename;
+		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		gtk_image_set_from_file(GTK_IMAGE(pic_image), filename);
+		if (pic_filename)
+			g_free(pic_filename);
+		pic_filename = filename;
+	}
+	gtk_widget_destroy(dialog);
 }
 
 static void reset_text_widgets()
@@ -573,7 +644,18 @@ static void build_gui()
 	GtkScrolledWindow *sw0 = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_add_with_viewport(sw0, post_view);
 	gtk_widget_set_size_request(sw0, -1, 100);
-	gtk_table_attach_defaults(table, sw0, 1, 4, 1, 2);
+	gtk_table_attach_defaults(table, sw0, 1, 2, 1, 2);
+
+	pic_check_btn = gtk_check_button_new();
+	gtk_table_attach_defaults(table, pic_check_btn, 2, 3, 1, 2);
+
+	pic_image = gtk_image_new();
+	gtk_widget_set_size_request(pic_image, 100, 100);
+	GtkWidget *event_box = gtk_event_box_new();
+	gtk_container_add(GTK_CONTAINER(event_box), pic_image);
+	g_signal_connect(G_OBJECT(event_box), "button_press_event",
+				G_CALLBACK(pic_image_button_press), NULL);
+	gtk_table_attach_defaults(table, event_box, 3, 4, 1, 2);
 
 	/*
 	 * API Call Result
