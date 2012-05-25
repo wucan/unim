@@ -7,6 +7,7 @@ AM_CFLAGS = $(CFLAGS) \
 
 unim_LDADD = \
 	-lm -lpthread \
+	-lcurl \
 	$(gtk_LIBS) $(oauth_LIBS) $(json_LIBS)
 
 
@@ -16,6 +17,7 @@ unim_SOURCES = \
 	main.c \
 	oauth_test.c \
 	unim.c unim_oauth.c weibo_oauth.c \
+	wu_http.c \
 	$(NULL_FILE)
 
 SUBDIRS =
