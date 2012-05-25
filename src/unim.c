@@ -109,7 +109,6 @@ static void clean_login_info()
 
 void unim_init()
 {
-	g_thread_init(NULL);
 	gtk_init(NULL, NULL);
 
 	build_gui();
