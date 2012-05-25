@@ -2,3 +2,9 @@
 src/unim
 Makefile
 */Makefile
+stamp-h1
+config.h
+config.log
+config.status
+*.cache
+.deps
