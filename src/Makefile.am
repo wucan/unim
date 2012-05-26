@@ -7,7 +7,7 @@ AM_CFLAGS = $(CFLAGS) \
 
 unim_LDADD = \
 	-lm -lpthread \
-	-lcurl \
+	-lcurl -ljansson \
 	$(gtk_LIBS) $(oauth_LIBS) $(json_LIBS)
 
 

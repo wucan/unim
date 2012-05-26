@@ -1,9 +1,13 @@
 #include <gtk/gtk.h>
 
+#include <jansson.h>
+
 #include "unim.h"
 #include "unim_oauth.h"
 #include "wu_http.h"
 
+
+static char * json_indent(const char *raw_data);
 
 static GtkWidget *btn, *api_call_btn, *post_btn;
 static GtkWidget *token_entry, *token_secret_entry;
@@ -310,7 +314,10 @@ static void api_call_button_press(GtkWidget *widget,
 		gtk_text_buffer_set_text(text_buf, sbuf, -1);
 		return;
 	}
-	gtk_text_buffer_set_text(text_buf, api_call_info.result, -1);
+
+	char *t = json_indent(api_call_info.result);
+	gtk_text_buffer_set_text(text_buf, t, -1);
+	free(t);
 	free(api_call_info.result);
 }
 
@@ -360,7 +367,9 @@ static void weibo_update()
 	if (rc) {
 		gtk_text_buffer_set_text(text_buf, "post failed!", -1);
 	} else {
-		gtk_text_buffer_set_text(text_buf, api_call_info.result, -1);
+		char *t = json_indent(api_call_info.result);
+		gtk_text_buffer_set_text(text_buf, t, -1);
+		free(t);
 		free(api_call_info.result);
 	}
 }
@@ -396,7 +405,9 @@ static void weibo_upload()
 	if (rc) {
 		gtk_text_buffer_set_text(text_buf, "post failed!", -1);
 	} else {
-		gtk_text_buffer_set_text(text_buf, req.response, -1);
+		char *t = json_indent(req.response);
+		gtk_text_buffer_set_text(text_buf, t, -1);
+		free(t);
 	}
 
 	wu_http_post_request_free(&req);
@@ -675,5 +686,25 @@ static void build_gui()
 	 * show gui
 	 */
 	gtk_widget_show_all(msg_win);
+}
+
+static char * json_indent(const char *raw_data)
+{
+	json_error_t err;
+	json_t *json = NULL;
+	char *indented_data;
+
+	json = json_loads(raw_data, 0, &err);
+	if (json) {
+		indented_data = json_dumps(json, JSON_INDENT(2));
+		json_decref(json);
+	} else {
+		printf("json error: %s\n", err.text);
+	}
+
+	if (!indented_data)
+		indented_data = strdup(raw_data);
+
+	return indented_data;
 }
 
